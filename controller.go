@@ -1,8 +1,8 @@
 package main
 
 import (
-	"edonish-app/client"
-	"edonish-app/ui"
+	"github.com/4codegit/eDonish_pro/client"
+	"github.com/4codegit/eDonish_pro/ui"
 	"fyne.io/fyne/v2"
 )
 

@@ -2,13 +2,14 @@ package ui
 
 import (
 	"context"
-	"edonish-app/client"
 	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+
+	"github.com/4codegit/eDonish_pro/client"
 )
 
 // Dashboard - главное окно
