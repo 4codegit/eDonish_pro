@@ -29,7 +29,10 @@ jobs:
             libxrandr-dev \
             libxinerama-dev \
             libxcursor-dev \
-            libxkbcommon-x11-0
+            libxkbcommon-x11-0 \
+            libgl1 \
+            libglu1-mesa-dev \
+            pkg-config
 
       - name: Build
         run: |
