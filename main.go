@@ -1,8 +1,34 @@
 package main
 
-import "fmt"
+import (
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
+)
 
 func main() {
-	fmt.Println("eDonish Pro")
+	a := app.New()
+	w := a.NewWindow("eDonish Pro")
+
+	username := widget.NewEntry()
+	username.SetPlaceHolder("Логин")
+
+	password := widget.NewPasswordEntry()
+	password.SetPlaceHolder("Пароль")
+
+	loginBtn := widget.NewButton("Войти", func() {
+		// TODO: Login logic
+	})
+
+	content := container.NewVBox(
+		widget.NewLabel("eDonish Pro"),
+		username,
+		password,
+		loginBtn,
+	)
+
+	w.SetContent(content)
+	w.Resize(fyne.NewSize(400, 300))
+	w.ShowAndRun()
 }
 
