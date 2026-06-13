@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,23 +15,22 @@ func main() {
 	
 	if len(os.Args) < 3 {
 		fmt.Println("Usage: edonish-pro <username> <password>")
-		fmt.Println("Example: ./edonish-pro 200117707 test123")
 		return
 	}
 	
 	username := os.Args[1]
 	password := os.Args[2]
-	fmt.Printf("Logging in as %s...\n", username)
+	fmt.Printf("Login: %s\n", username)
 	
 	data := map[string]string{
 		"username": username,
 		"password": password,
 	}
-	body, _ := json.Marshal(data)
+	jsonData, _ := json.Marshal(data)
 	
-	resp, err := http.Post("https://edonish.tj/auth/v1/login", "application/json", string(body))
+	resp, err := http.Post("https://edonish.tj/auth/v1/login", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		fmt.Println("HTTP Error:", err)
+		fmt.Println("Error:", err)
 		return
 	}
 	defer resp.Body.Close()
