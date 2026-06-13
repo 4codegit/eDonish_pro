@@ -1,34 +1,65 @@
 package main
 
 import (
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/widget"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
 )
 
+// EdonishPro - консольное приложение для автоматизации edonish.tj
+// GUI версия доступна с Fyne (см. README.md)
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+func login(username, password string) (*LoginResponse, error) {
+	reqBody, _ := json.Marshal(LoginRequest{Username: username, Password: password})
+	
+	resp, err := http.Post("https://edonish.tj/auth/v1/login", "application/json", nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var result LoginResponse
+	json.Unmarshal(body, &result)
+	
+	return &result, nil
+}
+
 func main() {
-	a := app.New()
-	w := a.NewWindow("eDonish Pro")
-
-	username := widget.NewEntry()
-	username.SetPlaceHolder("Логин")
-
-	password := widget.NewPasswordEntry()
-	password.SetPlaceHolder("Пароль")
-
-	loginBtn := widget.NewButton("Войти", func() {
-		// TODO: Login logic
-	})
-
-	content := container.NewVBox(
-		widget.NewLabel("eDonish Pro - Авторизация"),
-		username,
-		password,
-		loginBtn,
-	)
-
-	w.SetContent(content)
-	w.Resize(fyne.NewSize(400, 300))
-	w.ShowAndRun()
+	fmt.Println("eDonish Pro v0.1.0")
+	fmt.Println("Console version - for GUI use Fyne (see README.md)")
+	
+	if len(os.Args) >= 3 {
+		username := os.Args[1]
+		password := os.Args[2]
+		
+		fmt.Printf("Logging in as %s...\n", username)
+		result, err := login(username, password)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
+		
+		if result.Success {
+			fmt.Println("Login successful!")
+		} else {
+			fmt.Printf("Login failed: %s\n", result.Message)
+		}
+	} else {
+		fmt.Println("Usage: edonish-pro <username> <password>")
+		fmt.Println("Or run with GUI: go run main_gui.go")
+	}
 }
 
