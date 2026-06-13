@@ -3,7 +3,6 @@ package main
 import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -18,22 +17,17 @@ func main() {
 	password.SetPlaceHolder("Пароль")
 
 	loginBtn := widget.NewButton("Войти", func() {
-		if username.Text == "" || password.Text == "" {
-			dialog.ShowError("Ошибка", "Заполните все поля", w)
-			return
-		}
-		dialog.ShowInformation("Успех", "Вход выполнен!", w)
+		// TODO: Login logic
 	})
 
-	form := container.NewVBox(
+	content := container.NewVBox(
 		widget.NewLabel("eDonish Pro - Авторизация"),
-		widget.NewSeparator(),
 		username,
 		password,
 		loginBtn,
 	)
 
-	w.SetContent(form)
+	w.SetContent(content)
 	w.Resize(fyne.NewSize(400, 300))
 	w.ShowAndRun()
 }
