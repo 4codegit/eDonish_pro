@@ -10,22 +10,27 @@ import (
 
 func main() {
 	fmt.Println("eDonish Pro v0.2.0")
+	fmt.Println("Automated system for edonish.tj")
 	
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: edonish-pro <username>")
+	if len(os.Args) < 3 {
+		fmt.Println("Usage: edonish-pro <username> <password>")
+		fmt.Println("Example: ./edonish-pro 200117707 test123")
 		return
 	}
 	
 	username := os.Args[1]
-	fmt.Println("User:", username)
+	password := os.Args[2]
+	fmt.Printf("Logging in as %s...\n", username)
 	
-	data := map[string]string{"username": username}
+	data := map[string]string{
+		"username": username,
+		"password": password,
+	}
 	body, _ := json.Marshal(data)
-	_ = body
 	
-	resp, err := http.Post("https://edonish.tj/auth/v1/login", "application/json", nil)
+	resp, err := http.Post("https://edonish.tj/auth/v1/login", "application/json", string(body))
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("HTTP Error:", err)
 		return
 	}
 	defer resp.Body.Close()
