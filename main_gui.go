@@ -1,4 +1,5 @@
-// +build ignore
+//go:build gui
+// +build gui
 
 package main
 
@@ -19,7 +20,6 @@ func main() {
 	password.SetPlaceHolder("Пароль")
 
 	loginBtn := widget.NewButton("Войти", func() {
-		// TODO: Login logic
 		widget.NewLabel("Login clicked!")
 	})
 
