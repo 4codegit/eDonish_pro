@@ -1,4 +1,4 @@
-name: Build
+name: Release
 
 on:
   push:
@@ -6,7 +6,23 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Build EXE
+        run: go build -o edonish-pro.exe .
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: edonish-pro-windows.exe
+          path: edonish-pro.exe
+
+  build-linux-deb:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,11 +30,131 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-          cache: false
-      - name: Build
+      - name: Install FPM
+        run: sudo gem install fpm
+      - name: Build Linux binary
         run: go build -o edonish-pro .
-      - name: Upload
+      - name: Create DEB
+        run: |
+          fpm -s dir -t deb -n edonish-pro -v ${GITHUB_REF#refs/tags/} \
+            --prefix=/usr/local/bin edonish-pro=edonish-pro
+      - name: Create RPM
+        run: |
+          fpm -s dir -t rpm -n edonish-pro -v ${GITHUB_REF#refs/tags/} \
+            --prefix=/usr/local/bin edonish-pro=edonish-pro
+      - name: Upload DEB
         uses: actions/upload-artifact@v4
         with:
-          name: edonish-pro
-          path: edonish-pro
+          name: edonish-pro.deb
+          path: edonish-pro_*.deb
+      - name: Upload RPM
+        uses: actions/upload-artifact@v4
+        with:
+          name: edonish-pro.rpm
+          path: edonish-pro-*.rpm
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Build macOS
+        run: go build -o edonish-pro-macos .
+      - name: Create DMG
+        run: |
+          mkdir -p dmg/edonish-pro.app/Contents/MacOS
+          cp edonish-pro-macos dmg/edonish-pro.app/Contents/MacOS/
+          hdiutil create -format UDZO -srcfolder dmg -volname edonish-pro edonish-pro.dmg
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: edonish-pro.dmg
+          path: edonish-pro.dmg
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - name: Install gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gobind@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Build APK
+        run: |
+          gomobile init
+          gomobile build -target android -o edonish-pro.apk .
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: edonish-pro.apk
+          path: edonish-pro.apk
+
+  create-release:
+    needs: [build-windows, build-linux-deb, build-macos, build-android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: edonish-pro-windows.exe
+      - name: Download DEB
+        uses: actions/download-artifact@v4
+        with:
+          name: edonish-pro.deb
+      - name: Download RPM
+        uses: actions/download-artifact@v4
+        with:
+          name: edonish-pro.rpm
+      - name: Download DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: edonish-pro.dmg
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: edonish-pro.apk
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            edonish-pro-windows.exe
+            edonish-pro_*.deb
+            edonish-pro-*.rpm
+            edonish-pro.dmg
+            edonish-pro.apk
+          body: |
+            ## eDonish Pro ${{ github.ref_name }}
+            
+            ### Файлы для скачивания:
+            - 🪟 **Windows**: edonish-pro-windows.exe
+            - 🐧 **Linux DEB**: edonish-pro_*.deb
+            - 🎩 **Linux RPM**: edonish-pro-*.rpm
+            - 🍎 **macOS DMG**: edonish-pro.dmg
+            - 🤖 **Android APK**: edonish-pro.apk
+            
+            ### Использование:
+            ```bash
+            # Windows
+            edonish-pro-windows.exe <username> <password>
+            
+            # Linux
+            sudo dpkg -i edonish-pro_*.deb
+            edonish-pro <username> <password>
+            
+            # macOS
+            open edonish-pro.dmg
+            
+            # Android
+            Install APK on device
+            ```
