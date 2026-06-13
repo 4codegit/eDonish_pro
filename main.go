@@ -10,21 +10,9 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("eDonish Pro")
 
-	username := widget.NewEntry()
-	username.SetPlaceHolder("Логин")
-
-	password := widget.NewPasswordEntry()
-	password.SetPlaceHolder("Пароль")
-
-	loginBtn := widget.NewButton("Войти", func() {
-		// TODO: Login logic
-	})
-
 	content := container.NewVBox(
 		widget.NewLabel("eDonish Pro"),
-		username,
-		password,
-		loginBtn,
+		widget.NewButton("Click", func() {}),
 	)
 
 	w.SetContent(content)
