@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build
 
 on:
   push:
@@ -6,104 +6,22 @@ on:
       - 'v*'
 
 jobs:
-  build-linux:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
-      - name: Install dependencies
+      - name: Build
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
-
-      - name: Build Linux binary
-        run: |
-          go mod tidy
-          GOOS=linux GOARCH=amd64 go build -o edonish-pro-linux .
+          go build -o edonish-pro .
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: linux-binary
-          path: edonish-pro-linux
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-      - name: Build Windows
-        run: |
-          go mod tidy
-          GOOS=windows GOARCH=amd64 go build -o edonish-pro-windows.exe .
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: windows-artifacts
-          path: edonish-pro-windows.exe
-
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-      - name: Install Fyne
-        run: |
-          go install fyne.io/fyne/v2/cmd/fyne@latest
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-      - name: Build Android
-        run: |
-          go mod tidy
-          fyne package -os android -appID com.edonish.pro -name edonish-pro
-        continue-on-error: true
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-artifacts
-          path: edonish-pro.apk
-        if: success()
-
-  create-release:
-    needs: [build-linux, build-windows, build-android]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Download Linux
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-artifacts
-      - name: Download Windows
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-artifacts
-      - name: Download Android
-        uses: actions/download-artifact@v3
-        with:
-          name: android-artifacts
-        continue-on-error: true
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            edonish-pro-linux
-            edonish-pro_${{ github.ref_name }}_amd64.deb
-            edonish-pro-${{ github.ref_name }}-1.x86_64.rpm
-            edonish-pro-windows.exe
-            edonish-pro.apk
-          body: |
-            ## eDonish Pro ${{ github.ref_name }}
-            ### Файлы:
-            - Linux binary + DEB + RPM
-            - Windows exe
-            - Android APK
+          name: edonish-pro
+          path: edonish-pro
