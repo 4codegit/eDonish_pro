@@ -2,16 +2,14 @@ package main
 
 import (
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2"
 )
 
-// main - точка входа в приложение
 func main() {
-	// Создаём приложение Fyne
 	a := app.New()
-
-	// Создаём контроллер приложения
-	ctrl := NewAppController(a)
-
-	// Запускаем приложение
-	ctrl.Run()
+	w := a.NewWindow("eDonish Pro")
+	w.SetContent(NewLoginScreen())
+	w.Resize(fyne.NewSize(400, 300))
+	w.ShowAndRun()
 }
+
