@@ -1,131 +1,60 @@
-# eDonish Pro 📚
+# eDonish Pro
 
-**Профессиональная версия автоматизации электронного журнала edonish.tj**
+Автоматизированная система для **edonish.tj**
 
-Десктопное приложение на **Go** + **Fyne GUI**
+## Статус
 
----
+✅ CI/CD настроен - автоматическая сборка при создании тега
 
-## 🚀 Скачать
+## Установка
 
-### GitHub Releases
-
-[Скачать последнюю версию](https://github.com/4codegit/eDonish_pro/releases)
-
-| Платформа | Файл |
-|-----------|------|
-| 🐧 Linux (DEB) | `edonish-pro_x.x.x_amd64.deb` |
-| 🐧 Linux (RPM) | `edonish-pro-x.x.x-1.x86_64.rpm` |
-| 🪟 Windows | `edonish-pro-windows.exe` |
-| 🪟 Windows Setup | `edonish-pro-windows-installer.exe` |
-| 🤖 Android | `edonish-pro.apk` |
-
----
-
-## 🏃 Быстрый старт
-
-### Установка зависимостей
-
-**Ubuntu/Debian:**
+### Linux
 ```bash
-sudo apt-get update
-sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
+# Скачать из GitHub Releases
+wget https://github.com/4codegit/eDonish_pro/releases/latest/download/edonish-pro
+chmod +x edonish-pro
 ```
 
-**macOS:**
+## Использование
+
+### Консольная версия
 ```bash
-brew install go
-brew install gcc
+./edonish-pro <username> <password>
 ```
 
-**Windows:**
+Пример:
 ```bash
-choco install mingw
+./edonish-pro 200117707 test123
 ```
 
-### Запуск
-
+### GUI версия (требует Fyne)
 ```bash
-# Клонируйте репозиторий
-git clone https://github.com/4codegit/eDonish_pro.git
-cd eDonish_pro
-
-# Установите зависимости
-go mod tidy
-
-# Запустите
-go run .
+go run -tags gui main_gui.go
 ```
 
-### Компиляция
+## Сборка
 
+### Локальная
 ```bash
-# Linux
-GOOS=linux GOARCH=amd64 go build -o edonish-pro .
-
-# Windows
-GOOS=windows GOARCH=amd64 go build -o edonish-pro.exe .
-
-# macOS
-GOOS=darwin GOARCH=amd64 go build -o edonish-pro .
+go build -o edonish-pro .
 ```
 
----
-
-## 📋 Структура
-
-```
-eDonish_pro/
-├── main.go              # Точка входа
-├── controller.go        # Контроллер
-├── client/
-│   └── client.go        # API клиент
-├── ui/
-│   ├── login_screen.go  # Вход
-│   └── dashboard.go     # Дашборд
-├── go.mod
-└── README.md
-```
-
----
-
-## ⚙️ Настройка API
-
-Откройте `controller.go` и настройте endpoints:
-
-```go
-c.client, err = client.NewEdonishClient(
-    "https://edonish.tj",
-    "https://edonish.tj/auth/v1/login", // ← Замените на реальный
-)
-```
-
----
-
-## 📦 CI/CD
-
-Автоматическая сборка при теге:
-
+### CI/CD
+Автоматически при создании тега:
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
-Файлы появятся в [Releases](https://github.com/4codegit/eDonish_pro/releases)
+## Структура
+- `main.go` - основное приложение (консоль)
+- `main_gui.go` - GUI версия (Fyne, опционально)
+- `.github/workflows/release.yml` - CI/CD конфигурация
 
----
+## Технологии
+- Go 1.21
+- Fyne v2 (GUI, опционально)
+- GitHub Actions (CI/CD)
 
-## 🔐 Учётные данные
-
-```
-Логин: 200117707
-Пароль: ********
-```
-
-**Внимание:** Никогда не коммитьте реальные учётные данные!
-
----
-
-## 📝 Лицензия
-
-MIT License - образовательные цели.
+## License
+MIT
