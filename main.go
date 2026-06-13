@@ -11,17 +11,17 @@ import (
 func main() {
 	fmt.Println("eDonish Pro v0.2.0")
 	
-	if len(os.Args) < 3 {
-		fmt.Println("Usage: edonish-pro <username> <password>")
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: edonish-pro <username>")
 		return
 	}
 	
 	username := os.Args[1]
-	password := os.Args[2]
-	fmt.Printf("Login: %s\n", username)
+	fmt.Println("User:", username)
 	
-	data := map[string]string{"username": username, "password": password}
+	data := map[string]string{"username": username}
 	body, _ := json.Marshal(data)
+	_ = body
 	
 	resp, err := http.Post("https://edonish.tj/auth/v1/login", "application/json", nil)
 	if err != nil {
@@ -31,13 +31,5 @@ func main() {
 	defer resp.Body.Close()
 	
 	result, _ := io.ReadAll(resp.Body)
-	
-	var respData map[string]interface{}
-	json.Unmarshal(result, &respData)
-	
-	if respData["success"] == true {
-		fmt.Println("Success!")
-	} else {
-		fmt.Println("Failed:", respData["message"])
-	}
+	fmt.Println("Response:", string(result))
 }
