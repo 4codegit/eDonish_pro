@@ -26,50 +26,11 @@ jobs:
           go mod tidy
           GOOS=linux GOARCH=amd64 go build -o edonish-pro-linux .
 
-      - name: Build DEB package
-        run: |
-          mkdir -p deb/DEBIAN deb/usr/bin deb/usr/share/applications
-          cat > deb/DEBIAN/control << EOF
-          Package: edonish-pro
-          Version: ${{ github.ref_name }}
-          Architecture: amd64
-          Maintainer: Edonish Team
-          Description: Edonish Pro desktop app
-          EOF
-          cp edonish-pro-linux deb/usr/bin/
-          chmod +x deb/usr/bin/edonish-pro-linux
-          dpkg-deb --build deb edonish-pro_${{ github.ref_name }}_amd64.deb
-
-      - name: Build RPM package
-        run: |
-          mkdir -p rpm/SOURCES rpm/SPECS rpm/BUILD
-          tar -czvf rpm/SOURCES/edonish-pro-${{ github.ref_name }}.tar.gz \
-            --transform 's|^|edonish-pro-${{ github.ref_name }}/|' \
-            *.go client/ ui/ go.mod go.sum .gitignore README.md
-          cat > rpm/SPECS/edonish-pro.spec << EOF
-          Name: edonish-pro
-          Version: ${{ github.ref_name }}
-          Release: 1%{?dist}
-          Summary: Edonish Pro app
-          License: MIT
-          BuildArch: x86_64
-          %description Edonish Pro desktop application
-          %prep %setup -q
-          %build go mod tidy && GOOS=linux GOARCH=amd64 go build -o edonish-pro .
-          %install mkdir -p %{buildroot}/usr/bin && cp edonish-pro %{buildroot}/usr/bin/
-          %files /usr/bin/edonish-pro
-          EOF
-          rpmbuild -bb rpm/SPECS/edonish-pro.spec --define "_topdir $(pwd)/rpm"
-          cp rpm/RPMS/x86_64/edonish-pro-${{ github.ref_name }}-1.x86_64.rpm .
-
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: linux-artifacts
-          path: |
-            edonish-pro-linux
-            edonish-pro_${{ github.ref_name }}_amd64.deb
-            edonish-pro-${{ github.ref_name }}-1.x86_64.rpm
+          name: linux-binary
+          path: edonish-pro-linux
 
   build-windows:
     runs-on: windows-latest
